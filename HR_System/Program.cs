@@ -1,4 +1,5 @@
 ﻿using HR_System.Data;
+using HR_System.Models.Entities;
 using HR_System.Providers;
 using HR_System.Repositories;
 using HR_System.Services;
@@ -68,11 +69,11 @@ builder.Services.AddCors(options =>
 });
 // ----------------------
 
-builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-    });
+//builder.Services.AddControllers()
+//    .AddJsonOptions(options =>
+//    {
+//        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+//    });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options => {
@@ -107,6 +108,34 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+
+    const string adminEmail = "admin@gmail.com";
+    const string adminPassword = "Admin123!"; 
+
+    if (!db.Employees.Any(e => e.Email == adminEmail))
+    {
+        db.Employees.Add(new Employee
+        {
+            Id = Guid.NewGuid(),
+            FirstName = "Admin",
+            LastName = "Admin",
+            Email = adminEmail,
+            PasswordHash = HashAdminPassword(adminPassword),
+            Role = "Admin"
+        });
+        db.SaveChanges();
+    }
+}
+
+static string HashAdminPassword(string password)
+{
+    return BCrypt.Net.BCrypt.HashPassword(password); 
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -117,6 +146,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseCors("AngularDevPolicy");
+app.UseStaticFiles();
 
 app.UseAuthentication();
 

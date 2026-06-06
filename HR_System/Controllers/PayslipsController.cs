@@ -17,93 +17,6 @@ namespace HR_System.Controllers
         {
             _context = context;
         }
-        //[HttpPost("generatePayslip")]
-        //public async Task<IActionResult> GenerateBatchCustom([FromBody] GenerateCustomPayslipsDto request)
-        //{
-        //    // 1. Validation
-        //    if (request.StartDate > request.EndDate)
-        //        return BadRequest("Start date cannot be after end date.");
-
-        //    // 2. Get active contracts
-        //    var contractsQuery = _context.EmploymentContracts.Where(c => c.IsActive);
-        //    if (request.EmployeeIds != null && request.EmployeeIds.Any())
-        //    {
-        //        contractsQuery = contractsQuery.Where(c => request.EmployeeIds.Contains(c.EmployeeId));
-        //    }
-        //    var activeContracts = await contractsQuery.ToListAsync();
-        //    var targetEmployeeIds = activeContracts.Select(c => c.EmployeeId).ToList();
-
-        //    if (!activeContracts.Any()) return BadRequest("No active contracts found.");
-
-
-        //    Console.WriteLine("Start date: " + request.StartDate);
-        //    Console.WriteLine("End date: " + request.EndDate);
-
-        //    // 3. BULK FETCH: Filter strictly by the Custom Date Range
-        //    var allAttendances = await _context.Attendances
-        //        .Where(a => targetEmployeeIds.Contains(a.EmployeeId)
-        //                 && a.Date >= request.StartDate
-        //                 && a.Date <= request.EndDate)
-        //        .ToListAsync();
-
-        //    var allLeaves = await _context.Leaves
-        //        .Where(l => targetEmployeeIds.Contains(l.EmployeeId)
-        //                 && l.StartDate >= request.StartDate
-        //                 && l.EndDate <= request.EndDate)
-        //        .ToListAsync();
-
-        //    var grossPayments = new List<double>();
-
-        //    // Get standard monthly hours to calculate the base hourly rate (e.g., 160)
-        //    var standardMonthlyHours = 160;
-
-        //    // 4. Process each employee
-        //    foreach (var contract in activeContracts)
-        //    {
-        //        // Sum hours within the custom range
-        //        var workedHours = allAttendances
-        //            .Where(a => a.EmployeeId == contract.EmployeeId)
-        //            .Sum(a => a.TotalHoursWorked);
-
-        //        Console.WriteLine("workedHours ----------------: " + workedHours);
-
-
-        //        var paidLeaveHours = allLeaves
-        //            .Where(l => l.EmployeeId == contract.EmployeeId && l.IsPaid)
-        //            .Sum(l => l.TotalDays * 8);
-        //        Console.WriteLine("paidLeaveHours ----------------: " + paidLeaveHours);
-
-        //        var totalPayableHours = (decimal)workedHours + paidLeaveHours;
-
-        //        //Console.WriteLine("PAyable hours ----------------: " + totalPayableHours);
-
-        //        // Calculate the value of 1 hour based on their monthly contract
-        //        var hourlyRate = contract.BaseSalary / standardMonthlyHours;
-
-        //        // Pay them only for the hours they accumulated in this specific date range
-        //        double calculatedGross = (double)hourlyRate * (double)totalPayableHours;
-
-        //        //var newPayslip = new Payslip
-        //        //{
-        //        //    Id = Guid.NewGuid(),
-        //        //    EmployeeId = contract.EmployeeId,
-        //        //    GrossSalary = Math.Round(calculatedGross, 2),
-        //        //    NetSalary = Math.Round(calculatedGross, 2),
-        //        //    GenerationDate = DateTime.UtcNow,
-        //        //    LineItems = new List<PayslipLineItem>()
-        //        //};
-
-        //        //generatedPayslips.Add(newPayslip);
-        //        grossPayments.Add(calculatedGross);
-        //    }
-
-        //    //_context.Payslips.AddRange(generatedPayslips);
-        //    //await _context.SaveChangesAsync();
-
-        //    return Ok(grossPayments);
-        //}
-
-
 
         [HttpPost("generatePayslip")]
         public async Task<IActionResult> GenerateBatchCustom([FromBody] GenerateCustomPayslipsDto request)
@@ -135,10 +48,8 @@ namespace HR_System.Controllers
                          && l.EndDate.Date <= request.EndDate.Date)
                 .ToListAsync();
 
-            // Changed from a list of decimals to a list of Payslip objects
             var generatedPayslips = new List<Payslip>();
 
-            // Process each employee
             foreach (var contract in activeContracts)
             {
                 var workedHours = allAttendances
@@ -169,14 +80,11 @@ namespace HR_System.Controllers
                         break;
                 }
 
-                // 1. Calculate Gross
                 decimal calculatedGross = effectiveHourlyRate * totalPayableHours;
 
-                // 2. Calculate Net (Example: Flat 20% tax deduction. Adjust this to your real tax logic)
                 decimal taxRate = 0.20m;
                 decimal calculatedNet = calculatedGross - (calculatedGross * taxRate);
 
-                // 3. Create the Payslip Record
                 var newPayslip = new Payslip
                 {
                     Id = Guid.NewGuid(),
@@ -192,26 +100,53 @@ namespace HR_System.Controllers
                 generatedPayslips.Add(newPayslip);
             }
 
-            // 4. Save to Database
             _context.Payslips.AddRange(generatedPayslips);
             await _context.SaveChangesAsync();
 
-            // 5. Return the created objects so the frontend can display them immediately
             return Ok(generatedPayslips);
         }
 
-        private int GetWorkingDays(DateTime startDate, DateTime endDate)
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Payslip>>> GetAllPayslips()
         {
-            int workingDays = 0;
-            for (DateTime date = startDate.Date; date <= endDate.Date; date = date.AddDays(1))
-            {
-                // Skip weekends
-                if (date.DayOfWeek != DayOfWeek.Saturday && date.DayOfWeek != DayOfWeek.Sunday)
-                {
-                    workingDays++;
-                }
-            }
-            return workingDays;
+            // Retrieve all payslips, ordered by generation date (newest first)
+            var payslips = await _context.Payslips
+                .OrderByDescending(p => p.GenerationDate)
+                .ToListAsync();
+
+            return Ok(payslips);
+        }
+
+        [HttpPost("delete-multiple")]
+        public async Task<IActionResult> DeleteMultiple([FromBody] List<Guid> ids)
+        {
+            if (ids == null || !ids.Any())
+                return BadRequest("No IDs provided.");
+
+            // Find all payslips that match the incoming IDs
+            var payslipsToDelete = await _context.Payslips
+                .Where(p => ids.Contains(p.Id))
+                .ToListAsync();
+
+            if (!payslipsToDelete.Any())
+                return NotFound("No matching records found.");
+
+            // Remove the batch and save
+            _context.Payslips.RemoveRange(payslipsToDelete);
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+
+        [HttpGet("employee/{employeeId:guid}")]
+        public async Task<IActionResult> GetByEmployee(Guid employeeId)
+        {
+            var payslips = await _context.Payslips
+                .Where(p => p.EmployeeId == employeeId)
+                .OrderByDescending(p => p.PeriodEnd)
+                .ToListAsync();
+
+            return Ok(payslips);
         }
     }
 }

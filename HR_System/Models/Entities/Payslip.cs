@@ -1,5 +1,7 @@
-﻿using System;
-using HR_System.Enums;
+﻿using HR_System.Enums;
+using HR_System.Models.Entities;
+using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HR_System.Models
 {
@@ -7,6 +9,9 @@ namespace HR_System.Models
     {
         public Guid Id { get; set; }
         public Guid EmployeeId { get; set; }
+
+        [ForeignKey(nameof(EmployeeId))]
+        public Employee? Employee { get; set; }
 
         public DateTime PeriodStart { get; set; }
         public DateTime PeriodEnd { get; set; }

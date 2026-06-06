@@ -90,35 +90,35 @@ namespace HR_System.Controllers
                 candidateId = newCandidate.Id
             });
         }
+
         [HttpPost("{id}/send-email")]
         public async Task<IActionResult> SendEmail(Guid id, [FromBody] SendEmailDto request)
         {
-            Console.WriteLine($"Received email request for candidate ID: {id}");
-
-            var candidate = await _repository.GetByIdAsync(id);
-            if (candidate == null) return NotFound(new { message = "Candidate not found" });
+            var candidate = await _context.Candidates.FindAsync(id);
+            if (candidate == null)
+                return NotFound(new { message = "Candidate not found" });
 
             try
             {
                 await _emailService.SendAsync(
-                    request.ToEmail,
-                    request.ToName,
+                    candidate.Email,                                    // ← из БД
+                    $"{candidate.FirstName} {candidate.LastName}",      // ← из БД
                     request.Subject,
                     request.Body
                 );
 
                 candidate.Stage = CandidateStage.Interviewing;
+                await _context.SaveChangesAsync();
 
                 return Ok(new
                 {
                     message = "Email sent successfully",
-                    newStage = candidate.Stage.ToString() 
+                    newStage = candidate.Stage.ToString()
                 });
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Email failed for {id}. Error: {ex.Message}");
-
                 return StatusCode(500, new { message = "Failed to send email. Stage was not updated." });
             }
         }

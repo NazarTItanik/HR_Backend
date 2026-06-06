@@ -1,6 +1,7 @@
-﻿using System;
-using HR_System.Enums;
+﻿using HR_System.Enums;
+using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 
 namespace HR_System.Models.Entities
@@ -19,11 +20,10 @@ namespace HR_System.Models.Entities
         [MaxLength(100)]
         public string LastName { get; set; } = string.Empty;
 
-        // Made nullable in case of general resume drops
         public int? VacancyId { get; set; }
 
-        // Navigation property (Assuming you have a Vacancy class, uncomment later if needed)
-        // public Vacancy? Vacancy { get; set; }
+        [ForeignKey(nameof(VacancyId))]
+        public Vacancy? Vacancy { get; set; }
 
         [MaxLength(500)]
         public string? resumeFile { get; set; }

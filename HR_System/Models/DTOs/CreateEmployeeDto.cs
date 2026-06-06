@@ -19,7 +19,7 @@ namespace HR_System.Models.DTOs
         public string Email { get; set; } = string.Empty;
 
         [Required]
-        public DateTime HireDate { get; set; }
+        public DateTime HireDate { get; set; } = DateTime.Now;
 
 
         [Required]
@@ -38,5 +38,8 @@ namespace HR_System.Models.DTOs
 
         [Required]
         public WageType WageType { get; set; } = WageType.Monthly;
+
+        [Required]
+        public string Role { get; set; }
     }
 }

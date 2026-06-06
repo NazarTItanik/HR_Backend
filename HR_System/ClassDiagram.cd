@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Attendance">
+    <Position X="4" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAQEAAAgAAAAAAAAAAAACAAACAABAAAAAAACAAA=</HashCode>
+      <FileName>Models\Entities\Attendance.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Leave">
+    <Position X="2.25" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAEAAAAAAIAAAAAAAAwCAAAAQAAAAAAAEACAgA=</HashCode>
+      <FileName>Models\Entities\Leave.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="HR_System.Models.Entities.Candidate">
+    <Position X="5.75" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAiAFAIACAAQAAACCAQAAAAAAAAACAAAAhABACAgAg=</HashCode>
+      <FileName>Models\Entities\Candidate.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="HR_System.Models.Entities.Employee">
+    <Position X="7.5" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACCAFCEACAAAAAAECAAAAAAACEAAAAAAAAIAAAAAAg=</HashCode>
+      <FileName>Models\Entities\Employee.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="HR_System.Models.Entities.EmploymentContract">
+    <Position X="0.5" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACIAAAAAAAAAAAGAABAAAgCQgAAAAAAAAABEACAAA=</HashCode>
+      <FileName>Models\Entities\EmployeeContract.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="HR_System.Models.Entities.JobApplication">
+    <Position X="9.25" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAEACAAABCIACAAAAQAAAIAAAADAAAApEAAAAA=</HashCode>
+      <FileName>Models\Entities\JobApplication.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="HR_System.Models.Entities.Vacancy">
+    <Position X="0.5" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAEAAAAAAAAAAAAAAIAAAAAAIAAAAAAA=</HashCode>
+      <FileName>Models\Entities\Vacancy.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="HR_System.Models.Payslip">
+    <Position X="2.25" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAECAAAEAAAAAKAAAAAAAAAACAAAAAAAAAAAAAADAEA=</HashCode>
+      <FileName>Models\Entities\Payslip.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

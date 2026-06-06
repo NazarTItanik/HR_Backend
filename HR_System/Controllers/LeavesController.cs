@@ -146,5 +146,44 @@
             await _context.SaveChangesAsync();
             return Ok(leave);
         }
+
+        [HttpGet("employee/{employeeId:guid}/pending")]
+        public async Task<IActionResult> GetPendingByEmployee(Guid employeeId)
+        {
+            var pending = await _context.Leaves
+                .Where(l => l.EmployeeId == employeeId
+                         && l.Status == LeaveStatus.Pending)
+                .OrderByDescending(l => l.StartDate)
+                .ToListAsync();
+
+            return Ok(pending);
+        }
+
+        [HttpGet("employee/{employeeId:guid}/approved")]
+        public async Task<IActionResult> GetApprovedByEmployee(Guid employeeId)
+        {
+            var currentYear = DateTime.UtcNow.Year;
+
+            var approved = await _context.Leaves
+                .Where(l => l.EmployeeId == employeeId
+                         && l.Status == LeaveStatus.Approved
+                         && l.StartDate.Year == currentYear)
+                .OrderByDescending(l => l.StartDate)
+                .ToListAsync();
+
+            return Ok(approved);
+        }
+
+
+        [HttpGet("employee/{employeeId:guid}")]
+        public async Task<IActionResult> GetAllByEmployee(Guid employeeId)
+        {
+            var leaves = await _context.Leaves
+                .Where(l => l.EmployeeId == employeeId)
+                .OrderByDescending(l => l.StartDate)
+                .ToListAsync();
+
+            return Ok(leaves);
+        }
     }
 }

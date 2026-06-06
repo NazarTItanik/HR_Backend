@@ -26,14 +26,14 @@ namespace HR_System.Controllers
             _emailService = emailService;
             _tokenProvider = tokenProvider;
         }
-        // Временное хранилище в памяти сервера
+
         private static readonly List<JobApplication> _requests = new List<JobApplication>();
 
         [HttpPost("apply")]
         public IActionResult Apply([FromBody] JobApplication request)
         {
             _requests.Add(request);
-            return Ok(new { Message = "Заявка успешно отправлена!" });
+            return Ok(new { Message = "Application has been succesfully applied" });
         }
 
         [HttpGet("list")]
@@ -82,14 +82,6 @@ namespace HR_System.Controllers
             {
                 token = _tokenProvider.GenerateToken(user),
                 User = user,
-                //message = "Successful entry",
-                //user = new
-                //{
-                //    id = user.Id,
-                //    firstName = user.FirstName,
-                //    lastName = user.LastName,
-                //    role = user.Role 
-                //}
             });
         }
 

@@ -10,5 +10,8 @@ namespace HR_System.Models.Entities
         [Required]
         [MaxLength(100)]
         public string Title { get; set; } = string.Empty;
+
+        public ICollection<Candidate> Candidates { get; set; } = new List<Candidate>();
+        public ICollection<EmploymentContract> Contracts { get; set; } = new List<EmploymentContract>();
     }
 }

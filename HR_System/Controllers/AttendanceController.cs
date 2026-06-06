@@ -1,5 +1,6 @@
 ﻿using HR_System.Data;
 using HR_System.Enums;
+using HR_System.Models.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -150,7 +151,7 @@ namespace HR_System.Controllers
             return Ok(new { message = $"Deleted {records.Count} records." });
         }
 
-        [HttpPost("update")] // POST /api/Attendance/update
+        [HttpPost("update")] 
         public async Task<IActionResult> Update([FromBody] Attendance model)
         {
             // 1. Find the existing record by ID
@@ -185,5 +186,62 @@ namespace HR_System.Controllers
 
             return Ok(existing);
         }
+
+        // POST: api/Attendance/{id}
+        [HttpPost("{id:guid}")]
+        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateAttendanceDto dto)
+        {
+            var attendance = await _context.Attendances
+                .FirstOrDefaultAsync(a => a.Id == id);
+
+            if (attendance == null)
+                return NotFound(new { message = $"Attendance with id {id} not found." });
+
+            // Обновляем clockOut если передан
+            if (dto.ClockOut.HasValue)
+            {
+                attendance.ClockOut = dto.ClockOut;
+
+                // Автоматически вычисляем total hours worked
+                if (attendance.ClockIn.HasValue && attendance.ClockOut.HasValue)
+                {
+                    var duration = attendance.ClockOut.Value - attendance.ClockIn.Value;
+                    attendance.TotalHoursWorked = (double)duration.TotalHours;
+                }
+            }
+
+            // Обновляем clockIn если передан
+            if (dto.ClockIn.HasValue)
+            {
+                attendance.ClockIn = dto.ClockIn;
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok(attendance);
+        }
+
+        // GET: api/Attendance/employee/{employeeId}?date=2026-06-02
+        [HttpGet("employee/{employeeId:guid}")]
+        public async Task<IActionResult> GetByEmployee(Guid employeeId, [FromQuery] DateTime? date)
+        {
+            var query = _context.Attendances
+                .Where(a => a.EmployeeId == employeeId);
+
+            if (date.HasValue)
+            {
+                // Сравниваем только дату (без времени)
+                var targetDate = date.Value.Date;
+                query = query.Where(a => a.Date.Date == targetDate);
+            }
+
+            var attendances = await query
+                .OrderByDescending(a => a.Date)
+                .ToListAsync();
+
+            return Ok(attendances);
+        }
+
+
     }
 }

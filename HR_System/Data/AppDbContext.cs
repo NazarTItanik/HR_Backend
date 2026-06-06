@@ -14,22 +14,6 @@ namespace HR_System.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
-            //modelBuilder.Entity<Candidate>()
-            //    .Property(c => c.Stage)
-            //    .HasConversion<string>();
-
-            //modelBuilder.Entity<Attendance>()
-            //.Property(a => a.Status)
-            //.HasConversion<string>();
-
-            //modelBuilder.Entity<Leave>()
-            //    .Property(l => l.LeaveType)
-            //    .HasConversion<string>();
-
-            //modelBuilder.Entity<Leave>()
-            //    .Property(l => l.Status)
-            //    .HasConversion<string>();
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
                 foreach (var property in entityType.GetProperties())
