@@ -19,12 +19,6 @@ namespace HR_System.Controllers
 
         private readonly IEmailService _emailService;
 
-        //public CandidatesController(ICandidateRepository repository, IEmailService emailService)
-        //{
-        //    _repository = repository;
-        //    _emailService = emailService;
-        //}
-
         private readonly AppDbContext _context;
 
         public CandidatesController(AppDbContext context, IEmailService emailService)
@@ -101,8 +95,8 @@ namespace HR_System.Controllers
             try
             {
                 await _emailService.SendAsync(
-                    candidate.Email,                                    // ← из БД
-                    $"{candidate.FirstName} {candidate.LastName}",      // ← из БД
+                    candidate.Email,                                
+                    $"{candidate.FirstName} {candidate.LastName}",   
                     request.Subject,
                     request.Body
                 );
@@ -186,7 +180,7 @@ namespace HR_System.Controllers
             candidate.Notes = request.Notes;
             candidate.Stage = request.Stage;
 
-            // Update resume only if a new file is provided
+  
             if (request.resumeFile != null && request.resumeFile.Length > 0)
             {
                 var uploadsFolder = Path.Combine("wwwroot", "resumes");

@@ -56,25 +56,18 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
-// --- Настройка CORS ---
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AngularDevPolicy", policy =>
     {
-        policy.WithOrigins("http://localhost:4200") // Твой фронтенд
+        policy.WithOrigins("http://localhost:4200") 
               .AllowAnyHeader()
               .AllowAnyMethod()
-              .AllowCredentials(); // Если будешь использовать куки/Identity
+              .AllowCredentials();
     });
 });
-// ----------------------
 
-//builder.Services.AddControllers()
-//    .AddJsonOptions(options =>
-//    {
-//        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-//    });
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options => {
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme { 
@@ -136,7 +129,6 @@ static string HashAdminPassword(string password)
     return BCrypt.Net.BCrypt.HashPassword(password); 
 }
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

@@ -18,7 +18,7 @@ namespace HR_System.Controllers
             _context = context;
         }
 
-        // GET: api/Contracts/employee/5
+
         [HttpGet("employee/{employeeId}")]
         public async Task<IActionResult> GetByEmployee(Guid employeeId)
         {
@@ -33,11 +33,11 @@ namespace HR_System.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ContractCreateDto dto)
         {
-            // 1. Validate employee exists
+
             var employee = await _context.Employees.FindAsync(dto.EmployeeId);
             if (employee == null) return NotFound("Employee not found.");
 
-            // 2. Logic: Deactivate any existing active contract for this employee
+
             var activeContracts = await _context.EmploymentContracts
                 .Where(c => c.EmployeeId == dto.EmployeeId && c.IsActive)
                 .ToListAsync();
@@ -48,7 +48,7 @@ namespace HR_System.Controllers
                 contract.EndDate = DateTime.Now;
             }
 
-            // 3. Create the new contract
+    
             var newContract = new EmploymentContract
             {
                 Id = Guid.NewGuid(),
@@ -58,12 +58,11 @@ namespace HR_System.Controllers
                 StartDate = dto.StartDate,
                 WorkType = dto.WorkType,
                 WageType = dto.WageType,
-                IsActive = true // Mark the new one as active
+                IsActive = true 
             };
 
             _context.EmploymentContracts.Add(newContract);
 
-            // 4. Save changes
             await _context.SaveChangesAsync();
 
             return Ok(new { message = "Contract created successfully." });

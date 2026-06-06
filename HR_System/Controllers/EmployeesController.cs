@@ -17,7 +17,7 @@ namespace HR_System.Controllers
         private readonly AppDbContext _context;
         private readonly IEmailService _emailService;
 
-        // Внедрение зависимости (Dependency Injection) базы данных
+
         public EmployeesController(AppDbContext context, IEmailService emailService)
         {
             _context = context;
@@ -107,7 +107,7 @@ HR Department";
         [HttpPost("delete-multiple")]
         public async Task<IActionResult> DeleteMultiple([FromBody] List<Guid> ids)
         {
-            // 1. Fetch all records that exist in the database
+
             var employees = await _context.Employees
                 .Where(e => ids.Contains(e.Id))
                 .ToListAsync();
@@ -117,16 +117,16 @@ HR Department";
                 return NotFound("No employees found with the provided IDs.");
             }
 
-            // 2. Remove the entire batch
+
             _context.Employees.RemoveRange(employees);
 
-            // 3. Save changes
+
             await _context.SaveChangesAsync();
 
             return Ok(new { message = $"Successfully deleted {employees.Count} employees." });
         }
 
-        // GET: api/employees
+
         [HttpGet("GetEmployees")]
         public async Task<IActionResult> GetAllEmployees()
         {

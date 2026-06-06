@@ -1,9 +1,9 @@
 ﻿namespace HR_System.Controllers
 {
-    using HR_System.Data; // Your DbContext namespace
+    using HR_System.Data;
     using HR_System.Enums;
     using HR_System.Models.DTOs;
-    using HR_System.Models.Entities; // Your Entity namespace
+    using HR_System.Models.Entities; 
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
 
@@ -21,7 +21,7 @@
         [HttpPost]
         public async Task<IActionResult> Create(LeaveCreateDTO model) 
         {
-            // 1. Map DTO to Entity (or map manually)
+
             var leave = new Leave
             {
                 EmployeeId = model.EmployeeId,
@@ -37,14 +37,14 @@
             var diff = (leave.EndDate - leave.StartDate).TotalDays + 1;
             leave.TotalDays = (decimal)diff;
 
-            // 4. Save to DB
+
             _context.Leaves.Add(leave);
             await _context.SaveChangesAsync();
 
             return Ok(leave);
         }
 
-        // POST: api/Leaves/update
+
         [HttpPost("update")]
         public async Task<IActionResult> Update([FromBody] LeaveUpdateDto model)
         {
@@ -64,9 +64,6 @@
             existingLeave.LeaveType = model.LeaveType;
             existingLeave.Reason = model.Reason;
 
-            // 2. CRITICAL: Recalculate business logic
-            // If the user changed the dates, TotalDays must update.
-            // If the user changed the type, IsPaid must update.
             existingLeave.IsPaid = (model.LeaveType != LeaveType.Unpaid);
 
             var diff = (model.EndDate - model.StartDate).TotalDays + 1;
@@ -87,7 +84,7 @@
         [HttpPost("delete-multiple")]
         public async Task<IActionResult> DeleteMultiple([FromBody] List<Guid> ids)
         {
-            // 1. Fetch all records that match the provided IDs
+
             var records = await _context.Leaves
                 .Where(l => ids.Contains(l.Id))
                 .ToListAsync();
@@ -97,7 +94,7 @@
                 return NotFound("No leave requests found with the provided IDs.");
             }
 
-            // 2. Remove the batch and save
+
             _context.Leaves.RemoveRange(records);
             await _context.SaveChangesAsync();
 
@@ -107,11 +104,10 @@
         [HttpGet("status/{status}")]
         public async Task<ActionResult<IEnumerable<Leave>>> GetLeavesByStatus(LeaveStatus status)
         {
-            // 1. Correct logging: Use the ILogger if available, or stay with Console 
-            // (Check your Backend Terminal/Output window, NOT the browser!)
+
             Console.WriteLine($"DEBUG: Received status request: {status}");
 
-            // 2. Remove the premature return that was killing your code
+
             var leaves = await _context.Leaves
                 .Include(l => l.Employee)
                 .Where(l => l.Status == status)

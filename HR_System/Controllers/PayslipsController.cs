@@ -109,7 +109,6 @@ namespace HR_System.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Payslip>>> GetAllPayslips()
         {
-            // Retrieve all payslips, ordered by generation date (newest first)
             var payslips = await _context.Payslips
                 .OrderByDescending(p => p.GenerationDate)
                 .ToListAsync();
@@ -123,7 +122,6 @@ namespace HR_System.Controllers
             if (ids == null || !ids.Any())
                 return BadRequest("No IDs provided.");
 
-            // Find all payslips that match the incoming IDs
             var payslipsToDelete = await _context.Payslips
                 .Where(p => ids.Contains(p.Id))
                 .ToListAsync();
@@ -131,7 +129,6 @@ namespace HR_System.Controllers
             if (!payslipsToDelete.Any())
                 return NotFound("No matching records found.");
 
-            // Remove the batch and save
             _context.Payslips.RemoveRange(payslipsToDelete);
             await _context.SaveChangesAsync();
 

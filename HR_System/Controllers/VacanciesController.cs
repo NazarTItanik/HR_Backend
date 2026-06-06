@@ -14,11 +14,6 @@ namespace HR_System.Controllers
 
         private readonly IEmailService _emailService;
 
-        //public CandidatesController(ICandidateRepository repository, IEmailService emailService)
-        //{
-        //    _repository = repository;
-        //    _emailService = emailService;
-        //}
 
         private readonly AppDbContext _context;
 

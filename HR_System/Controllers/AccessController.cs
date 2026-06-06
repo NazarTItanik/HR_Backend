@@ -45,7 +45,6 @@ namespace HR_System.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterEmployeeDto request)
         {
-            // 1. Генерируем случайный пароль (например, 10 символов)
             string rawPassword = CreatePassword(10);
             string hashedPassword = BCrypt.Net.BCrypt.HashPassword(rawPassword);
 
