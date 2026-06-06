@@ -181,5 +181,81 @@
 
             return Ok(leaves);
         }
+
+        [HttpPost("approve-multiple")]
+        public async Task<IActionResult> ApproveMultiple([FromBody] List<Guid> ids)
+        {
+            if (ids == null || !ids.Any())
+                return BadRequest("No IDs provided.");
+
+            var records = await _context.Leaves
+                .Where(l => ids.Contains(l.Id))
+                .ToListAsync();
+
+            if (!records.Any())
+                return NotFound("No leave requests found with the provided IDs.");
+
+            var skipped = new List<Guid>();
+
+            foreach (var leave in records)
+            {
+                if (leave.Status == LeaveStatus.Approved)
+                {
+                    skipped.Add(leave.Id);
+                    continue;
+                }
+
+                leave.Status = LeaveStatus.Approved;
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message = $"Approved {records.Count - skipped.Count} leave request(s).",
+                approvedCount = records.Count - skipped.Count,
+                skippedCount = skipped.Count,
+                skippedIds = skipped,
+                notFoundIds = ids.Except(records.Select(r => r.Id)).ToList()
+            });
+        }
+
+        [HttpPost("reject-multiple")]
+        public async Task<IActionResult> RejectMultiple([FromBody] List<Guid> ids)
+        {
+            if (ids == null || !ids.Any())
+                return BadRequest("No IDs provided.");
+
+            var records = await _context.Leaves
+                .Where(l => ids.Contains(l.Id))
+                .ToListAsync();
+
+            if (!records.Any())
+                return NotFound("No leave requests found with the provided IDs.");
+
+            var skipped = new List<Guid>();
+
+            foreach (var leave in records)
+            {
+                if (leave.Status == LeaveStatus.Rejected)
+                {
+                    skipped.Add(leave.Id);
+                    continue;
+                }
+
+                leave.Status = LeaveStatus.Rejected;
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message = $"Rejected {records.Count - skipped.Count} leave request(s).",
+                rejectedCount = records.Count - skipped.Count,
+                skippedCount = skipped.Count,
+                skippedIds = skipped,
+                notFoundIds = ids.Except(records.Select(r => r.Id)).ToList()
+            });
+        }
     }
 }

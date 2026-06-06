@@ -220,6 +220,82 @@ namespace HR_System.Controllers
             return Ok(attendances);
         }
 
+        [HttpPost("approve-multiple")]
+        public async Task<IActionResult> ApproveMultiple([FromBody] List<Guid> ids)
+        {
+            if (ids == null || !ids.Any())
+                return BadRequest("No IDs provided.");
+
+            var records = await _context.Attendances
+                .Where(a => ids.Contains(a.Id))
+                .ToListAsync();
+
+            if (!records.Any())
+                return NotFound("No records found.");
+
+            var skipped = new List<Guid>();
+
+            foreach (var attendance in records)
+            {
+                if (attendance.Status == AttendanceStatus.Validated)
+                {
+                    skipped.Add(attendance.Id);
+                    continue;
+                }
+
+                attendance.Status = AttendanceStatus.Validated;
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message = $"Approved {records.Count - skipped.Count} record(s).",
+                approvedCount = records.Count - skipped.Count,
+                skippedCount = skipped.Count,
+                skippedIds = skipped,
+                notFoundIds = ids.Except(records.Select(r => r.Id)).ToList()
+            });
+        }
+
+        [HttpPost("reject-multiple")]
+        public async Task<IActionResult> RejectMultiple([FromBody] List<Guid> ids)
+        {
+            if (ids == null || !ids.Any())
+                return BadRequest("No IDs provided.");
+
+            var records = await _context.Attendances
+                .Where(a => ids.Contains(a.Id))
+                .ToListAsync();
+
+            if (!records.Any())
+                return NotFound("No records found.");
+
+            var skipped = new List<Guid>();
+
+            foreach (var attendance in records)
+            {
+                if (attendance.Status == AttendanceStatus.Rejected)
+                {
+                    skipped.Add(attendance.Id);
+                    continue;
+                }
+
+                attendance.Status = AttendanceStatus.Rejected;
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message = $"Rejected {records.Count - skipped.Count} record(s).",
+                rejectedCount = records.Count - skipped.Count,
+                skippedCount = skipped.Count,
+                skippedIds = skipped,
+                notFoundIds = ids.Except(records.Select(r => r.Id)).ToList()
+            });
+        }
+
 
     }
 }
